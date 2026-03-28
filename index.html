@@ -101,7 +101,6 @@
   .success-msg h3 { margin-bottom: 6px; }
   .section-divider { border: none; border-top: 1.5px solid #d4e89a; margin: 24px 0; }
 
-  /* Donation box */
   .donation-box {
     margin-top: 20px;
     background: linear-gradient(135deg, #f4fadf, #eef6cc);
@@ -110,9 +109,11 @@
     padding: 24px;
     text-align: center;
   }
-  .donation-header { margin-bottom: 12px; }
+  .donation-header { margin-bottom: 8px; }
   .donation-icon { font-size: 2rem; display: block; margin-bottom: 6px; }
-  .donation-header h3 { color: #6a8a0d; font-size: 1.1rem; }
+  .donation-header h3 { color: #6a8a0d; font-size: 1.1rem; margin-bottom: 6px; }
+  .donation-sub { color: #888; font-size: 0.85rem; margin-bottom: 0; }
+  .donation-divider { border: none; border-top: 1.5px solid #c8e06a; margin: 16px 0; }
   .donation-text { color: #555; font-size: 0.92rem; line-height: 1.6; margin-bottom: 18px; }
   .donate-btn {
     display: inline-block;
@@ -194,7 +195,7 @@
   <div class="header">
     <div class="paw">🐱</div>
     <h1>Ankieta odbioru fantów</h1>
-    <p>Bazarek Charytatywny dla Kotów – dziękujemy za wsparcie! 💕</p>
+    <p>Bazarek Charytatywny dla Fundacji KOT – dziękujemy za wsparcie! 💕</p>
   </div>
 
   <div class="body">
@@ -274,24 +275,20 @@
       <button class="submit-btn" id="submitBtn" onclick="submitForm()" disabled>
         Wyślij ankietę 🐾
       </button>
-      <div class="success-msg" id="successMsg">
-        <h3>🎉 Dziękujemy za wypełnienie ankiety!</h3>
-        <p>Odpowiedź została zapisana. Niebawem skontaktujemy się w sprawie odbioru fantów. 💕</p>
-      </div>
-
       <div class="donation-box" id="donationBox" style="display:none">
         <div class="donation-header">
-          <span class="donation-icon">🐾</span>
-          <h3>Jeszcze jeden krok – wpłać darowiznę!</h3>
+          <span class="donation-icon">🎉</span>
+          <h3>Dziękujemy za wypełnienie ankiety!</h3>
+          <p class="donation-sub">Twoje zgłoszenie zostało zapisane. Został jeszcze jeden krok!</p>
         </div>
+        <div class="donation-divider"></div>
         <p class="donation-text" id="donationText">
-          Prosimy o wpłacenie darowizny bezpośrednio na naszą zbiórkę charytatywną.
+          Prosimy o wpłacenie darowizny bezpośrednio na naszą zbiórkę.
           Każda złotówka wspiera kastrację i leczenie naszych KOTów! 🐱
         </p>
         <a href="https://www.ratujemyzwierzaki.pl/zatrzymajmy-kolejny-miot" target="_blank" class="donate-btn">
           Wpłać teraz 💚
         </a>
-
         <div class="confirmation-box">
           <p class="sara-text">📩 Po dokonaniu wpłaty prosimy o przesłanie potwierdzenia przelewu do <strong>Sary</strong> – najlepiej przez Messenger. Dziękujemy! 💕</p>
         </div>
