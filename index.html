@@ -284,18 +284,15 @@
           <span class="donation-icon">🐾</span>
           <h3>Jeszcze jeden krok – wpłać darowiznę!</h3>
         </div>
-        <p class="donation-text">
-          Prosimy o wpłacenie kwoty za fanty bezpośrednio na naszą zbiórkę charytatywną.
-          Każda złotówka trafia do potrzebujących zwierząt! 🐱
+        <p class="donation-text" id="donationText">
+          Prosimy o wpłacenie darowizny bezpośrednio na naszą zbiórkę charytatywną.
+          Każda złotówka wspiera kastrację i leczenie naszych KOTów! 🐱
         </p>
         <a href="https://www.ratujemyzwierzaki.pl/zatrzymajmy-kolejny-miot" target="_blank" class="donate-btn">
           Wpłać teraz 💚
         </a>
 
         <div class="confirmation-box">
-          <p class="confirmation-text">
-            Po dokonaniu wpłaty prosimy o przesłanie <strong>potwierdzenia przelewu</strong> do Sary.
-          </p>
           <p class="sara-text">📩 Po dokonaniu wpłaty prosimy o przesłanie potwierdzenia przelewu do <strong>Sary</strong> – najlepiej przez Messenger. Dziękujemy! 💕</p>
         </div>
       </div>
@@ -412,7 +409,11 @@
     const rows = wygraneRows.filter(r => String(r[nameKey]).trim() === name);
     const fanty = rows.map(r => r[fantKey]).join('; ');
     const total = rows.reduce((s,r) => s + (parseFloat(String(r[priceKey]).replace(',','.')) || 0), 0);
-    const totalWithShipping = currentDelivery === 'inpost' ? total + 15 : total;
+          const totalWithShipping = currentDelivery === 'inpost' ? total + 15 : total;
+
+      // Ustaw kwotę w komunikacie donacji
+      document.getElementById('donationText').innerHTML =
+        `Prosimy o wpłacenie darowizny <strong>${totalWithShipping.toFixed(2)} zł</strong> za fanty bezpośrednio na naszą zbiórkę charytatywną. Każda złotówka wspiera kastrację i leczenie naszych KOTów! 🐱`;
 
     const btn = document.getElementById('submitBtn');
     btn.disabled = true;
