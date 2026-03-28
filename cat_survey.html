@@ -1,0 +1,403 @@
+<!DOCTYPE html>
+<html lang="pl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Ankieta - Odbiór Fantów 🐱</title>
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    font-family: 'Segoe UI', sans-serif;
+    background: linear-gradient(135deg, #fff0f5 0%, #fce4ec 100%);
+    min-height: 100vh;
+    padding: 20px;
+    color: #333;
+  }
+  .container {
+    max-width: 680px;
+    margin: 0 auto;
+    background: white;
+    border-radius: 20px;
+    box-shadow: 0 8px 32px rgba(255,105,135,0.15);
+    overflow: hidden;
+  }
+  .header {
+    background: linear-gradient(135deg, #ff6b8a, #ff8fab);
+    color: white;
+    padding: 28px 32px;
+    text-align: center;
+  }
+  .header h1 { font-size: 1.5rem; margin-bottom: 6px; }
+  .header p { font-size: 0.9rem; opacity: 0.9; }
+  .paw { font-size: 1.8rem; margin-bottom: 8px; }
+  .body { padding: 28px 32px; }
+
+  /* URL config */
+  .config-section {
+    background: #fff8fb;
+    border: 2px dashed #ffb3c6;
+    border-radius: 12px;
+    padding: 16px 20px;
+    margin-bottom: 24px;
+  }
+  .config-section h3 { color: #c2185b; margin-bottom: 10px; font-size: 0.9rem; }
+  .config-row { display: flex; gap: 8px; }
+  .config-row input {
+    flex: 1;
+    padding: 9px 12px;
+    border: 1.5px solid #e0e0e0;
+    border-radius: 8px;
+    font-size: 0.82rem;
+    background: #fafafa;
+  }
+  .config-row input:focus { outline: none; border-color: #ff6b8a; }
+  .config-btn {
+    background: #ff6b8a;
+    color: white;
+    border: none;
+    border-radius: 8px;
+    padding: 9px 16px;
+    font-size: 0.85rem;
+    cursor: pointer;
+    white-space: nowrap;
+  }
+  .config-btn:hover { background: #e05577; }
+  .config-status { font-size: 0.8rem; margin-top: 7px; color: #888; }
+  .ok { color: #2e7d32; font-weight: 600; }
+  .err { color: #c62828; }
+
+  /* Loading */
+  .loading { text-align: center; padding: 20px; color: #ff6b8a; display: none; }
+  .spinner { display: inline-block; width: 28px; height: 28px; border: 3px solid #ffb3c6; border-top-color: #ff6b8a; border-radius: 50%; animation: spin 0.8s linear infinite; margin-bottom: 8px; }
+  @keyframes spin { to { transform: rotate(360deg); } }
+
+  /* Form fields */
+  .field { margin-bottom: 22px; }
+  label { display: block; font-weight: 600; margin-bottom: 7px; color: #555; font-size: 0.92rem; }
+  select, input[type=text], input[type=email], input[type=tel] {
+    width: 100%;
+    padding: 11px 14px;
+    border: 1.5px solid #e0e0e0;
+    border-radius: 10px;
+    font-size: 0.95rem;
+    transition: border-color 0.2s;
+    background: #fafafa;
+  }
+  select:focus, input:focus { outline: none; border-color: #ff6b8a; background: white; }
+
+  /* Prizes box */
+  .prizes-box {
+    background: #fff3f7;
+    border: 1.5px solid #ffb3c6;
+    border-radius: 12px;
+    padding: 16px 20px;
+    margin-bottom: 22px;
+    display: none;
+  }
+  .prizes-box h3 { color: #c2185b; margin-bottom: 12px; font-size: 0.95rem; }
+  .prize-row { display: flex; justify-content: space-between; padding: 6px 0; border-bottom: 1px solid #ffe0eb; font-size: 0.9rem; }
+  .prize-row:last-of-type { border-bottom: none; }
+  .prize-price { color: #e91e63; font-weight: 600; }
+  .prize-total { display: flex; justify-content: space-between; margin-top: 10px; padding-top: 10px; border-top: 2px solid #ffb3c6; font-weight: 700; font-size: 0.95rem; color: #ad1457; }
+
+  /* Delivery */
+  .delivery-options { display: flex; gap: 12px; flex-wrap: wrap; margin-bottom: 22px; }
+  .delivery-card {
+    flex: 1; min-width: 200px;
+    border: 2px solid #e0e0e0;
+    border-radius: 12px; padding: 16px;
+    cursor: pointer; transition: all 0.2s; text-align: center;
+  }
+  .delivery-card:hover { border-color: #ff6b8a; background: #fff8fb; }
+  .delivery-card.selected { border-color: #ff6b8a; background: #fff0f5; }
+  .delivery-card .icon { font-size: 1.8rem; margin-bottom: 6px; }
+  .delivery-card .title { font-weight: 700; color: #333; font-size: 0.95rem; }
+  .delivery-card .subtitle { color: #888; font-size: 0.8rem; margin-top: 3px; }
+
+  .sub-options { display: none; }
+  .sub-options.visible { display: block; }
+  .radio-label {
+    display: flex; align-items: flex-start; gap: 10px;
+    padding: 10px 14px; border: 1.5px solid #e0e0e0;
+    border-radius: 10px; margin-bottom: 8px;
+    cursor: pointer; font-size: 0.9rem; transition: all 0.2s;
+  }
+  .radio-label:hover { border-color: #ff6b8a; background: #fff8fb; }
+  .radio-label input { margin-top: 2px; accent-color: #ff6b8a; }
+  .other-input { margin-top: 8px; display: none; }
+
+  .inpost-fields { display: none; }
+  .inpost-fields.visible { display: block; }
+  .inpost-note { background: #e3f2fd; border-radius: 8px; padding: 10px 14px; font-size: 0.85rem; color: #1565c0; margin-bottom: 16px; }
+
+  .submit-btn {
+    width: 100%; background: linear-gradient(135deg, #ff6b8a, #ff8fab);
+    color: white; border: none; border-radius: 12px;
+    padding: 14px; font-size: 1rem; font-weight: 700;
+    cursor: pointer; transition: all 0.2s; margin-top: 8px;
+  }
+  .submit-btn:hover { transform: translateY(-1px); box-shadow: 0 4px 16px rgba(255,107,138,0.4); }
+  .submit-btn:disabled { background: #ccc; cursor: not-allowed; transform: none; box-shadow: none; }
+
+  .success-msg { display: none; background: #e8f5e9; border: 1.5px solid #a5d6a7; border-radius: 12px; padding: 18px; text-align: center; color: #2e7d32; margin-top: 16px; }
+  .section-divider { border: none; border-top: 1.5px solid #f5f5f5; margin: 24px 0; }
+
+  @media (max-width: 500px) {
+    .body { padding: 20px 16px; }
+    .delivery-options { flex-direction: column; }
+  }
+</style>
+</head>
+<body>
+<div class="container">
+  <div class="header">
+    <div class="paw">🐱</div>
+    <h1>Ankieta odbioru fantów</h1>
+    <p>Bazarek Charytatywny dla Kotów – dziękujemy za wsparcie! 💕</p>
+  </div>
+
+  <div class="body">
+    <!-- URL Config -->
+    <div class="config-section">
+      <h3>⚙️ Połączenie z Google Sheets (Apps Script URL)</h3>
+      <div class="config-row">
+        <input type="text" id="scriptUrl" placeholder="Wklej tu URL wdrożonego skryptu (https://script.google.com/macros/s/...)">
+        <button class="config-btn" onclick="connectScript()">Połącz</button>
+      </div>
+      <div id="configStatus" class="config-status">Nie połączono z Google Sheets</div>
+    </div>
+
+    <!-- Loading -->
+    <div class="loading" id="loading">
+      <div class="spinner"></div>
+      <div>Wczytywanie danych z Google Sheets…</div>
+    </div>
+
+    <!-- Person select -->
+    <div class="field">
+      <label for="personSelect">👤 Wybierz swoje imię i nazwisko</label>
+      <select id="personSelect" disabled onchange="onPersonSelect()">
+        <option value="">— najpierw połącz się z Google Sheets —</option>
+      </select>
+    </div>
+
+    <!-- Prizes -->
+    <div class="prizes-box" id="prizesBox">
+      <h3>🎁 Twoje wygrane fanty</h3>
+      <div id="prizesList"></div>
+      <div class="prize-total">
+        <span>Łączna kwota do zapłaty:</span>
+        <span id="prizeTotal">0 zł</span>
+      </div>
+    </div>
+
+    <hr class="section-divider">
+
+    <!-- Delivery -->
+    <div id="deliverySection" style="display:none">
+      <div class="field">
+        <label>🚚 Wybierz sposób odbioru</label>
+        <div class="delivery-options">
+          <div class="delivery-card" id="cardOsob" onclick="selectDelivery('osobisty')">
+            <div class="icon">🏠</div>
+            <div class="title">Odbiór osobisty</div>
+            <div class="subtitle">Odbierz w wybranym miejscu</div>
+          </div>
+          <div class="delivery-card" id="cardInpost" onclick="selectDelivery('inpost')">
+            <div class="icon">📦</div>
+            <div class="title">Wysyłka InPost</div>
+            <div class="subtitle">+15 zł koszt wysyłki</div>
+          </div>
+        </div>
+
+        <div class="sub-options" id="subOsobisty">
+          <label>📍 Wybierz miejsce odbioru</label>
+          <label class="radio-label"><input type="radio" name="miejsce" value="Toruń - Planeta Zoo przy Żwirki i Wigury"> Toruń – Planeta Zoo przy Żwirki i Wigury</label>
+          <label class="radio-label"><input type="radio" name="miejsce" value="Toruń - Planeta Zoo przy Kaszowniku"> Toruń – Planeta Zoo przy Kaszowniku</label>
+          <label class="radio-label"><input type="radio" name="miejsce" value="Włocławek - odbiór w kociarni / u Dominiki Płuzy"> Włocławek – odbiór w kociarni / u Dominiki Płuzy</label>
+          <label class="radio-label">
+            <input type="radio" name="miejsce" value="inny" onchange="toggleOther(this)"> Inny umówiony sposób odbioru
+          </label>
+          <div class="other-input" id="otherInput">
+            <input type="text" id="otherText" placeholder="Opisz umówiony sposób odbioru...">
+          </div>
+        </div>
+
+        <div class="inpost-fields" id="subInpost">
+          <div class="inpost-note">📦 Koszt wysyłki InPost: <strong>15 zł</strong> – zostanie doliczona do kwoty fantów.</div>
+          <div class="field">
+            <label for="paczkomat">Numer paczkomatu</label>
+            <input type="text" id="paczkomat" placeholder="np. WAW123M">
+          </div>
+          <div class="field">
+            <label for="email">Adres e-mail</label>
+            <input type="email" id="email" placeholder="twoj@email.pl">
+          </div>
+          <div class="field">
+            <label for="telefon">Numer telefonu</label>
+            <input type="tel" id="telefon" placeholder="np. 600 123 456">
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <button class="submit-btn" id="submitBtn" onclick="submitForm()" disabled>
+      Wyślij ankietę 🐾
+    </button>
+    <div class="success-msg" id="successMsg">
+      <h3>🎉 Dziękujemy za wypełnienie ankiety!</h3>
+      <p>Odpowiedź została zapisana w Google Sheets. Niebawem skontaktujemy się w sprawie odbioru fantów. 💕</p>
+    </div>
+  </div>
+</div>
+
+<script>
+  let wygraneRows = [];
+  let nameKey = '', fantKey = '', priceKey = '';
+  let currentDelivery = null;
+  let scriptUrl = '';
+
+  async function connectScript() {
+    const url = document.getElementById('scriptUrl').value.trim();
+    if (!url.startsWith('https://script.google.com')) {
+      setStatus('err', '❌ Nieprawidłowy URL – musi zaczynać się od https://script.google.com');
+      return;
+    }
+    scriptUrl = url;
+    setStatus('', '⏳ Łączenie z Google Sheets…');
+    document.getElementById('loading').style.display = 'block';
+    try {
+      const res = await fetch(scriptUrl + '?action=getWygrane', {redirect: 'follow'});
+      const json = await res.json();
+      if (json.error) throw new Error(json.error);
+      loadPersons(json.headers, json.rows);
+      setStatus('ok', '✅ Połączono z Google Sheets – dane wczytane pomyślnie');
+    } catch (e) {
+      setStatus('err', '❌ Błąd połączenia: ' + e.message);
+    } finally {
+      document.getElementById('loading').style.display = 'none';
+    }
+  }
+
+  function setStatus(cls, msg) {
+    const el = document.getElementById('configStatus');
+    el.className = 'config-status ' + cls;
+    el.textContent = msg;
+  }
+
+  function loadPersons(headers, rows) {
+    wygraneRows = rows;
+    nameKey  = headers.find(h => /imię|imie|nazwisko|name|osoba|uczestnik/i.test(h)) || headers[0];
+    fantKey  = headers.find(h => /fant|nagroda|przedmiot|item|towar/i.test(h))       || headers[1];
+    priceKey = headers.find(h => /kwota|cena|wartość|koszt|price|amount|suma/i.test(h)) || headers[2];
+
+    const names = [...new Set(rows.map(r => String(r[nameKey]).trim()).filter(Boolean))].sort();
+    const sel = document.getElementById('personSelect');
+    sel.innerHTML = '<option value="">— wybierz swoje imię i nazwisko —</option>';
+    names.forEach(n => {
+      const o = document.createElement('option');
+      o.value = o.textContent = n;
+      sel.appendChild(o);
+    });
+    sel.disabled = false;
+  }
+
+  function onPersonSelect() {
+    const name = document.getElementById('personSelect').value;
+    const box = document.getElementById('prizesBox');
+    const ds  = document.getElementById('deliverySection');
+    const btn = document.getElementById('submitBtn');
+    if (!name) { box.style.display='none'; ds.style.display='none'; btn.disabled=true; return; }
+
+    const rows = wygraneRows.filter(r => String(r[nameKey]).trim() === name);
+    let html = '', total = 0;
+    rows.forEach(r => {
+      const fant  = r[fantKey]  || '(brak nazwy)';
+      const price = parseFloat(String(r[priceKey]).replace(',','.')) || 0;
+      total += price;
+      html += `<div class="prize-row"><span>🎁 ${fant}</span><span class="prize-price">${price.toFixed(2)} zł</span></div>`;
+    });
+    document.getElementById('prizesList').innerHTML = html;
+    document.getElementById('prizeTotal').textContent = total.toFixed(2) + ' zł';
+    box.style.display = 'block';
+    ds.style.display  = 'block';
+    btn.disabled = false;
+  }
+
+  function selectDelivery(type) {
+    currentDelivery = type;
+    document.getElementById('cardOsob').classList.toggle('selected', type==='osobisty');
+    document.getElementById('cardInpost').classList.toggle('selected', type==='inpost');
+    document.getElementById('subOsobisty').classList.toggle('visible', type==='osobisty');
+    document.getElementById('subInpost').classList.toggle('visible', type==='inpost');
+  }
+
+  function toggleOther(radio) {
+    document.getElementById('otherInput').style.display = radio.checked ? 'block' : 'none';
+  }
+  document.querySelectorAll('input[name=miejsce]').forEach(r => {
+    r.addEventListener('change', () => {
+      if (r.value !== 'inny') document.getElementById('otherInput').style.display = 'none';
+    });
+  });
+
+  async function submitForm() {
+    const name = document.getElementById('personSelect').value;
+    if (!name) { alert('Wybierz imię i nazwisko.'); return; }
+    if (!currentDelivery) { alert('Wybierz sposób odbioru.'); return; }
+
+    let deliveryDetail = '';
+    if (currentDelivery === 'osobisty') {
+      const m = document.querySelector('input[name=miejsce]:checked');
+      if (!m) { alert('Wybierz miejsce odbioru.'); return; }
+      if (m.value === 'inny') {
+        const txt = document.getElementById('otherText').value.trim();
+        if (!txt) { alert('Opisz umówiony sposób odbioru.'); return; }
+        deliveryDetail = 'Inny: ' + txt;
+      } else { deliveryDetail = m.value; }
+    } else {
+      const p = document.getElementById('paczkomat').value.trim();
+      const e = document.getElementById('email').value.trim();
+      const t = document.getElementById('telefon').value.trim();
+      if (!p || !e || !t) { alert('Uzupełnij wszystkie dane InPost.'); return; }
+      deliveryDetail = `Paczkomat: ${p} | Email: ${e} | Tel: ${t}`;
+    }
+
+    const rows = wygraneRows.filter(r => String(r[nameKey]).trim() === name);
+    const fanty = rows.map(r => r[fantKey]).join('; ');
+    const total = rows.reduce((s,r) => s + (parseFloat(String(r[priceKey]).replace(',','.')) || 0), 0);
+    const totalWithShipping = currentDelivery === 'inpost' ? total + 15 : total;
+
+    const btn = document.getElementById('submitBtn');
+    btn.disabled = true;
+    btn.textContent = '⏳ Zapisywanie…';
+
+    try {
+      const res = await fetch(scriptUrl, {
+        method: 'POST',
+        body: JSON.stringify({
+          action: 'saveOdpowiedz',
+          data: {
+            timestamp:       new Date().toLocaleString('pl-PL'),
+            imie:            name,
+            fanty:           fanty,
+            kwotaFantow:     total.toFixed(2),
+            sposobOdbioru:   currentDelivery === 'osobisty' ? 'Odbiór osobisty' : 'InPost (+15 zł)',
+            szczegolyOdbioru: deliveryDetail,
+            lacznaKwota:     totalWithShipping.toFixed(2)
+          }
+        })
+      });
+      const json = await res.json();
+      if (json.error) throw new Error(json.error);
+      btn.style.display = 'none';
+      document.getElementById('successMsg').style.display = 'block';
+    } catch(e) {
+      alert('Błąd zapisu: ' + e.message);
+      btn.disabled = false;
+      btn.textContent = 'Wyślij ankietę 🐾';
+    }
+  }
+</script>
+</body>
+</html>
