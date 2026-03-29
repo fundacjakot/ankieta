@@ -4,6 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Ankieta - Odbiór Fantów 🐱</title>
+<meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'unsafe-inline'; style-src 'unsafe-inline'; connect-src https://script.google.com https://script.googleusercontent.com; img-src 'self' data:;">
 <style>
   * { box-sizing: border-box; margin: 0; padding: 0; }
   /* === Paleta Fundacji Kot === */
@@ -112,6 +113,18 @@
   }
   .search-item:hover { background: #f4fadf; color: #6a8a0d; font-weight: 600; }
   .search-none { padding: 10px 14px; color: #e26a1c; font-size: 0.88rem; }
+  /* Zgoda RODO */
+  .rodo-box {
+    background: #fafdf2; border: 1.5px solid #d4e89a;
+    border-radius: 12px; padding: 16px 18px; margin-bottom: 22px;
+  }
+  .rodo-box h4 { color: #6a8a0d; font-size: 0.9rem; margin-bottom: 10px; }
+  .rodo-box p, .rodo-box li { font-size: 0.82rem; color: #555; line-height: 1.6; }
+  .rodo-box ul { padding-left: 18px; margin: 6px 0; }
+  .rodo-box a { color: #92ba12; }
+  .rodo-consent { display: flex; align-items: flex-start; gap: 10px; margin-top: 14px; padding-top: 12px; border-top: 1px solid #d4e89a; }
+  .rodo-consent input[type=checkbox] { margin-top: 3px; accent-color: #92ba12; width: 16px; height: 16px; flex-shrink: 0; cursor: pointer; }
+  .rodo-consent label { font-size: 0.85rem; color: #444; cursor: pointer; line-height: 1.5; }
   .section-divider { border: none; border-top: 1.5px solid #d4e89a; margin: 24px 0; }
 
   .donation-box {
@@ -287,7 +300,25 @@
         </div>
       </div>
 
-      <button class="submit-btn" id="submitBtn" onclick="submitForm()" disabled>
+              <!-- Klauzula RODO -->
+        <div class="rodo-box">
+          <h4>🔒 Informacja o przetwarzaniu danych osobowych (art. 13 RODO)</h4>
+          <p><strong>Administrator danych:</strong> Fundacja KOT, kontakt: <a href="mailto:fundacjakot@gmail.com">fundacjakot@gmail.com</a></p>
+          <p style="margin-top:6px"><strong>Cel i podstawa przetwarzania:</strong> Dane zbierane są wyłącznie w celu realizacji odbioru fantów z Bazarku Charytatywnego (art. 6 ust. 1 lit. b RODO – wykonanie umowy/realizacja zamówienia).</p>
+          <p style="margin-top:6px"><strong>Zakres danych:</strong> imię i nazwisko, sposób odbioru, dane kontaktowe (przy wysyłce InPost).</p>
+          <p style="margin-top:6px"><strong>Odbiorcy danych:</strong> dane przechowywane są w Google Sheets (Google LLC) wyłącznie na potrzeby organizacji odbioru fantów.</p>
+          <p style="margin-top:6px"><strong>Okres przechowywania:</strong> dane zostaną usunięte po zakończeniu realizacji odbioru wszystkich fantów, nie później niż 60 dni po bazarku.</p>
+          <p style="margin-top:6px"><strong>Twoje prawa:</strong> masz prawo dostępu do danych, ich sprostowania, usunięcia, ograniczenia przetwarzania oraz wniesienia skargi do <a href="https://uodo.gov.pl" target="_blank">Urzędu Ochrony Danych Osobowych (UODO)</a>.</p>
+
+          <div class="rodo-consent">
+            <input type="checkbox" id="rodoCheckbox" onchange="onRodoChange()">
+            <label for="rodoCheckbox">
+              Zapoznałam/em się z informacją o przetwarzaniu danych osobowych i <strong>wyrażam zgodę</strong> na przetwarzanie moich danych osobowych przez Fundację KOT w celu realizacji odbioru fantów z Bazarku Charytatywnego.
+            </label>
+          </div>
+        </div>
+
+        <button class="submit-btn" id="submitBtn" onclick="submitForm()" disabled>
         Wyślij ankietę 🐾
       </button>
       <div class="donation-box" id="donationBox" style="display:none">
@@ -351,7 +382,18 @@
     // Nie ładujemy listy nazwisk do DOM – użytkownik wpisuje swoje
   }
 
-  function onSearchInput() {
+  function onRodoChange() {
+    // Przycisk aktywny tylko gdy wybrano osobę I zaznaczono zgodę
+    const hasName = selectedName !== '';
+    const hasRodo = document.getElementById('rodoCheckbox').checked;
+    document.getElementById('submitBtn').disabled = !(hasName && hasRodo);
+  }
+
+  function sanitize(str) {
+    const d = document.createElement('div');
+    d.textContent = str;
+    return d.innerHTML;
+  }
     const query = document.getElementById('personSearch').value.trim();
     document.getElementById('searchResult').innerHTML = '';
     document.getElementById('prizesBox').style.display = 'none';
@@ -387,17 +429,18 @@
     const rows = wygraneRows.filter(r => String(r[nameKey]).trim() === name);
     let html = '', total = 0;
     rows.forEach(r => {
-      const fant  = document.createElement('span');
-      fant.textContent = r[fantKey] || '(brak nazwy)';
+      const fant  = sanitize(r[fantKey]  || '(brak nazwy)');
       const price = parseFloat(String(r[priceKey]).replace(',','.')) || 0;
       total += price;
-      html += `<div class="prize-row"><span>🎁 ${fant.textContent}</span><span class="prize-price">${price.toFixed(2)} zł</span></div>`;
+      html += `<div class="prize-row"><span>🎁 ${fant}</span><span class="prize-price">${price.toFixed(2)} zł</span></div>`;
     });
     document.getElementById('prizesList').innerHTML = html;
     document.getElementById('prizeTotal').textContent = total.toFixed(2) + ' zł';
     document.getElementById('prizesBox').style.display = 'block';
     document.getElementById('deliverySection').style.display = 'block';
-    document.getElementById('submitBtn').disabled = false;
+    // Przycisk aktywny dopiero po zaznaczeniu zgody RODO
+    const hasRodo = document.getElementById('rodoCheckbox').checked;
+    document.getElementById('submitBtn').disabled = !hasRodo;
   }
 
   function selectDelivery(type) {
@@ -420,6 +463,7 @@
   async function submitForm() {
     const name = selectedName;
     if (!name) { alert('Wybierz swoje imię i nazwisko z listy podpowiedzi.'); return; }
+    if (!document.getElementById('rodoCheckbox').checked) { alert('Zaznacz zgodę na przetwarzanie danych osobowych.'); return; }
     if (!currentDelivery) { alert('Wybierz sposób odbioru.'); return; }
 
     let deliveryDetail = '';
