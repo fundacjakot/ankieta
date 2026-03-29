@@ -3,10 +3,11 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Ankieta - Odbiór Fantów 🐱</title>
+<meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline'; style-src 'self' 'unsafe-inline'; connect-src https://script.google.com https://script.googleusercontent.com; frame-ancestors 'none';">
+<title>Ankieta - Odbiór Fantów</title>
 <style>
   * { box-sizing: border-box; margin: 0; padding: 0; }
-  /* === Paleta Fundacji Kot === */
+  /* === Paleta Fundacji KOT === */
   /* Główny: #92ba12 | Jasny: #b8d94a | Bardzo jasny: #eef6cc | Ciemny: #6a8a0d */
   /* Akcent: #e26a1c */
 
@@ -36,24 +37,71 @@
   .paw { font-size: 1.8rem; margin-bottom: 8px; }
   .body { padding: 28px 32px; }
 
-  .loading { text-align: center; padding: 30px; color: #92ba12; }
-  .spinner { display: inline-block; width: 32px; height: 32px; border: 3px solid #c8e06a; border-top-color: #92ba12; border-radius: 50%; animation: spin 0.8s linear infinite; margin-bottom: 10px; }
+  .spinner {
+    display: inline-block;
+    width: 32px;
+    height: 32px;
+    border: 3px solid #c8e06a;
+    border-top-color: #92ba12;
+    border-radius: 50%;
+    animation: spin 0.8s linear infinite;
+    margin-bottom: 10px;
+  }
   @keyframes spin { to { transform: rotate(360deg); } }
 
-  .error-box { background: #fff8f3; border: 1.5px solid #e26a1c; border-radius: 12px; padding: 16px; color: #b94d0e; text-align: center; margin-bottom: 20px; }
+  .error-box {
+    background: #fff8f3;
+    border: 1.5px solid #e26a1c;
+    border-radius: 12px;
+    padding: 16px;
+    color: #b94d0e;
+    text-align: center;
+    margin-bottom: 20px;
+  }
 
   .field { margin-bottom: 22px; }
-  label { display: block; font-weight: 600; margin-bottom: 7px; color: #555; font-size: 0.92rem; }
-  select, input[type=text], input[type=email], input[type=tel] {
+  .label { display: block; font-weight: 600; margin-bottom: 7px; color: #555; font-size: 0.92rem; }
+  .inputs {
     width: 100%; padding: 11px 14px;
     border: 1.5px solid #d4e89a; border-radius: 10px;
     font-size: 0.95rem; transition: border-color 0.2s; background: #fafdf2;
   }
-  select:focus, input:focus { outline: none; border-color: #92ba12; background: white; }
+  .inputs:focus { outline: none; border-color: #92ba12; background: white; }
+
+  /* PIN screen */
+  .pin-section { text-align: center; padding: 16px 0 8px 0; }
+  .pin-input {
+    width: 160px;
+    padding: 14px 18px;
+    border: 2px solid #d4e89a;
+    border-radius: 12px;
+    font-size: 1.6rem;
+    font-weight: 700;
+    text-align: center;
+    letter-spacing: 0.3em;
+    background: #fafdf2;
+    transition: border-color 0.2s;
+    text-transform: uppercase;
+  }
+  .pin-input:focus { outline: none; border-color: #92ba12; background: white; }
+  .pin-hint { font-size: 0.83rem; color: #999; margin-top: 8px; }
+
+  .submit-btn {
+    width: 100%;
+    background: linear-gradient(135deg, #6a8a0d, #92ba12);
+    color: white; border: none; border-radius: 12px;
+    padding: 14px; font-size: 1rem; font-weight: 700;
+    cursor: pointer; transition: all 0.2s; margin-top: 8px;
+  }
+  .submit-btn:hover { transform: translateY(-1px); box-shadow: 0 4px 16px rgba(146,186,18,0.4); }
+  .submit-btn:disabled { background: #ccc; cursor: not-allowed; transform: none; box-shadow: none; }
 
   .prizes-box {
-    background: #f4fadf; border: 1.5px solid #b8d94a;
-    border-radius: 12px; padding: 16px 20px; margin-bottom: 22px; display: none;
+    background: #f4fadf;
+    border: 1.5px solid #b8d94a;
+    border-radius: 12px;
+    padding: 16px 20px;
+    margin-bottom: 22px;
   }
   .prizes-box h3 { color: #6a8a0d; margin-bottom: 12px; font-size: 0.95rem; }
   .prize-row { display: flex; justify-content: space-between; padding: 6px 0; border-bottom: 1px solid #d4e89a; font-size: 0.9rem; }
@@ -61,9 +109,14 @@
   .prize-price { color: #e26a1c; font-weight: 600; }
   .prize-total { display: flex; justify-content: space-between; margin-top: 10px; padding-top: 10px; border-top: 2px solid #b8d94a; font-weight: 700; font-size: 0.95rem; color: #6a8a0d; }
 
+  .greeting { color: #6a8a0d; font-size: 1.05rem; font-weight: 600; margin-bottom: 18px; }
+
+  .section-divider { border: none; border-top: 1.5px solid #d4e89a; margin: 24px 0; }
+
   .delivery-options { display: flex; gap: 12px; flex-wrap: wrap; margin-bottom: 22px; }
   .delivery-card {
-    flex: 1; min-width: 200px; border: 2px solid #d4e89a;
+    flex: 1; min-width: 200px;
+    border: 2px solid #d4e89a;
     border-radius: 12px; padding: 16px; cursor: pointer; transition: all 0.2s; text-align: center;
   }
   .delivery-card:hover { border-color: #92ba12; background: #f4fadf; }
@@ -88,43 +141,25 @@
   .inpost-fields.visible { display: block; }
   .inpost-note { background: #fff4ec; border-radius: 8px; padding: 10px 14px; font-size: 0.85rem; color: #b94d0e; margin-bottom: 16px; border-left: 3px solid #e26a1c; }
 
-  .submit-btn {
-    width: 100%; background: linear-gradient(135deg, #6a8a0d, #92ba12);
-    color: white; border: none; border-radius: 12px;
-    padding: 14px; font-size: 1rem; font-weight: 700;
-    cursor: pointer; transition: all 0.2s; margin-top: 8px;
-  }
-  .submit-btn:hover { transform: translateY(-1px); box-shadow: 0 4px 16px rgba(146,186,18,0.4); }
-  .submit-btn:disabled { background: #ccc; cursor: not-allowed; transform: none; box-shadow: none; }
-
-  .success-msg { display: none; background: #eef6cc; border: 1.5px solid #92ba12; border-radius: 12px; padding: 18px; text-align: center; color: #6a8a0d; margin-top: 16px; }
-  .success-msg h3 { margin-bottom: 6px; }
-  .search-wrap { position: relative; }
-  .search-result {
-    position: absolute; top: 100%; left: 0; right: 0; z-index: 100;
-    background: white; border: 1.5px solid #92ba12; border-top: none;
-    border-radius: 0 0 10px 10px; max-height: 200px; overflow-y: auto;
-    box-shadow: 0 4px 12px rgba(0,0,0,0.1);
-  }
-  .search-item {
-    padding: 10px 14px; cursor: pointer; font-size: 0.92rem;
-    border-bottom: 1px solid #f0f0f0; transition: background 0.15s;
-  }
-  .search-item:hover { background: #f4fadf; color: #6a8a0d; font-weight: 600; }
-  .search-none { padding: 10px 14px; color: #e26a1c; font-size: 0.88rem; }
-  /* Zgoda RODO */
   .rodo-box {
-    background: #fafdf2; border: 1.5px solid #d4e89a;
-    border-radius: 12px; padding: 16px 18px; margin-bottom: 22px;
+    background: #f4fadf;
+    border: 1.5px solid #b8d94a;
+    border-radius: 12px;
+    padding: 14px 18px;
+    margin-bottom: 18px;
+    font-size: 0.85rem;
+    color: #555;
+    line-height: 1.6;
   }
-  .rodo-box h4 { color: #6a8a0d; font-size: 0.9rem; margin-bottom: 10px; }
-  .rodo-box p, .rodo-box li { font-size: 0.82rem; color: #555; line-height: 1.6; }
-  .rodo-box ul { padding-left: 18px; margin: 6px 0; }
-  .rodo-box a { color: #92ba12; }
-  .rodo-consent { display: flex; align-items: flex-start; gap: 10px; margin-top: 14px; padding-top: 12px; border-top: 1px solid #d4e89a; }
-  .rodo-consent input[type=checkbox] { margin-top: 3px; accent-color: #92ba12; width: 16px; height: 16px; flex-shrink: 0; cursor: pointer; }
-  .rodo-consent label { font-size: 0.85rem; color: #444; cursor: pointer; line-height: 1.5; }
-  .section-divider { border: none; border-top: 1.5px solid #d4e89a; margin: 24px 0; }
+  .rodo-checkbox { display: flex; align-items: flex-start; gap: 10px; cursor: pointer; }
+  .rodo-checkbox input { margin-top: 3px; accent-color: #92ba12; flex-shrink: 0; }
+
+  .success-screen {
+    text-align: center;
+    padding: 32px 16px;
+  }
+  .success-screen h2 { color: #6a8a0d; margin-bottom: 10px; font-size: 1.3rem; }
+  .success-screen p { color: #555; font-size: 0.95rem; line-height: 1.6; }
 
   .donation-box {
     margin-top: 20px;
@@ -134,14 +169,12 @@
     padding: 24px;
     text-align: center;
   }
-  .donation-header { margin-bottom: 8px; }
+  .donation-box h3 { color: #6a8a0d; font-size: 1.1rem; margin-bottom: 6px; }
   .donation-icon { font-size: 2rem; display: block; margin-bottom: 6px; }
-  .donation-header h3 { color: #6a8a0d; font-size: 1.1rem; margin-bottom: 6px; }
-  .donation-sub { color: #888; font-size: 0.85rem; margin-bottom: 0; }
   .donation-divider { border: none; border-top: 1.5px solid #c8e06a; margin: 16px 0; }
   .donation-text { color: #555; font-size: 0.92rem; line-height: 1.6; margin-bottom: 18px; }
   .donate-btn {
-    display: inline-block;
+    display: block;
     background: linear-gradient(135deg, #6a8a0d, #92ba12);
     color: white;
     text-decoration: none;
@@ -151,8 +184,6 @@
     font-weight: 700;
     transition: all 0.2s;
     box-shadow: 0 4px 14px rgba(146,186,18,0.35);
-    margin-bottom: 24px;
-    display: block;
     max-width: 280px;
     margin: 0 auto 24px auto;
   }
@@ -165,49 +196,16 @@
     margin-top: 20px;
     border: 1.5px solid #d4e89a;
   }
-  .confirmation-text { color: #555; font-size: 0.88rem; line-height: 1.6; margin-bottom: 16px; }
-
-  .screen-example {
-    background: #f8f8f8;
-    border: 1.5px solid #ddd;
-    border-radius: 12px;
-    overflow: hidden;
-    max-width: 260px;
-    margin: 0 auto 16px auto;
-    box-shadow: 0 3px 12px rgba(0,0,0,0.1);
-  }
-  .screen-header {
-    background: #92ba12;
-    color: white;
-    font-size: 0.75rem;
-    font-weight: 600;
-    padding: 7px 12px;
-    text-align: center;
-    letter-spacing: 0.03em;
-  }
-  .screen-body { padding: 14px 16px; }
-  .screen-logo {
-    font-size: 1rem;
-    font-weight: 800;
-    color: #92ba12;
-    text-align: center;
-    margin-bottom: 12px;
-    line-height: 1.2;
-  }
-  .screen-logo small { color: #555; font-weight: 600; font-size: 0.75rem; }
-  .screen-row {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    font-size: 0.82rem;
-    padding: 5px 0;
-    border-bottom: 1px solid #eee;
-    color: #666;
-  }
-  .screen-row:last-child { border-bottom: none; }
-  .screen-val { font-weight: 700; color: #333; }
-
   .sara-text { color: #6a8a0d; font-size: 0.88rem; line-height: 1.6; margin-top: 4px; }
+
+  .already-submitted {
+    text-align: center;
+    padding: 24px 16px 8px 16px;
+  }
+  .already-submitted h2 { color: #6a8a0d; margin-bottom: 10px; font-size: 1.2rem; }
+  .already-submitted p { color: #555; font-size: 0.93rem; line-height: 1.6; }
+
+  .hidden { display: none !important; }
 
   @media (max-width: 500px) {
     .body { padding: 20px 16px; }
@@ -224,120 +222,134 @@
   </div>
 
   <div class="body">
-    <div class="loading" id="loading">
-      <div class="spinner"></div>
-      <div>Wczytywanie danych…</div>
+    <!-- Error box (hidden by default) -->
+    <div class="error-box hidden" id="errorBox"></div>
+
+    <!-- Screen 1: PIN entry -->
+    <div id="pinScreen">
+      <div class="pin-section">
+        <p style="color:#555; margin-bottom:18px; font-size:0.95rem;">Wprowadź kod PIN, który otrzymałeś/aś, aby przejść do ankiety.</p>
+        <input
+          type="text"
+          id="pinInput"
+          class="pin-input"
+          maxlength="4"
+          autofocus
+          autocomplete="off"
+          placeholder="····"
+          aria-label="Kod PIN"
+        >
+        <p class="pin-hint">4-znakowy kod (cyfry lub litery)</p>
+      </div>
+      <button class="submit-btn" id="pinBtn" onclick="verifyPin()">Sprawdź kod</button>
     </div>
 
-    <div class="error-box" id="errorBox" style="display:none"></div>
+    <!-- Screen 2: Form (hidden, filled in Task 5) -->
+    <div id="formScreen" class="hidden">
+      <div id="greeting" class="greeting"></div>
 
-    <div id="formContent" style="display:none">
-      <div class="field">
-        <label for="personSearch">👤 Wpisz swoje imię i nazwisko</label>
-        <div class="search-wrap">
-          <input type="text" id="personSearch" placeholder="Zacznij pisać swoje nazwisko…" oninput="onSearchInput()" autocomplete="off">
-          <div class="search-result" id="searchResult"></div>
-        </div>
-        <div class="search-hint">Wpisz minimum 2 litery, a system znajdzie Twoje dane.</div>
-      </div>
-
-      <div class="prizes-box" id="prizesBox">
-        <h3>🎁 Twoje wygrane fanty</h3>
+      <div id="prizesBox" class="prizes-box">
+        <h3>Twoje fanty:</h3>
         <div id="prizesList"></div>
         <div class="prize-total">
-          <span>Łączna kwota do zapłaty:</span>
-          <span id="prizeTotal">0 zł</span>
+          <span>Łącznie do wpłaty:</span>
+          <span id="prizeTotal"></span>
         </div>
       </div>
 
       <hr class="section-divider">
 
-      <div id="deliverySection" style="display:none">
+      <p style="font-weight:600; color:#555; margin-bottom:12px; font-size:0.95rem;">Wybierz sposób odbioru:</p>
+      <div class="delivery-options">
+        <div class="delivery-card" id="cardOsob" onclick="selectDelivery('osobisty')">
+          <div class="icon">🤝</div>
+          <div class="title">Odbiór osobisty</div>
+          <div class="subtitle">Odbierz w jednym z punktów</div>
+        </div>
+        <div class="delivery-card" id="cardInpost" onclick="selectDelivery('inpost')">
+          <div class="icon">📦</div>
+          <div class="title">InPost Paczkomat</div>
+          <div class="subtitle">Wysyłka (+15 zł)</div>
+        </div>
+      </div>
+
+      <div id="subOsobisty" class="sub-options">
+        <p style="font-weight:600; color:#555; margin-bottom:10px; font-size:0.92rem;">Wybierz miejsce odbioru:</p>
+        <label class="radio-label">
+          <input type="radio" name="miejsce" value="torun_zwirki">
+          Toruń Żwirki i Wigury
+        </label>
+        <label class="radio-label">
+          <input type="radio" name="miejsce" value="torun_kaszownik">
+          Toruń Kaszownik
+        </label>
+        <label class="radio-label">
+          <input type="radio" name="miejsce" value="wloclawek">
+          Włocławek kociarnia / Dominika Płuza
+        </label>
+        <label class="radio-label">
+          <input type="radio" name="miejsce" value="inny" onchange="toggleOther(this)">
+          Inne (umówione indywidualnie)
+        </label>
+        <div class="other-input" id="otherInput">
+          <label for="otherText" style="font-size:0.88rem; color:#555; display:block; margin-bottom:6px;">Opisz umówiony sposób odbioru:</label>
+          <input type="text" id="otherText" class="inputs" maxlength="200" placeholder="Opisz sposób odbioru...">
+        </div>
+      </div>
+
+      <div id="subInpost" class="sub-options">
+        <div class="inpost-note">📦 Wysyłka przez InPost wiąże się z dopłatą <strong>+15 zł</strong> do kwoty darowizny.</div>
         <div class="field">
-          <label>🚚 Wybierz sposób odbioru</label>
-          <div class="delivery-options">
-            <div class="delivery-card" id="cardOsob" onclick="selectDelivery('osobisty')">
-              <div class="icon">🏠</div>
-              <div class="title">Odbiór osobisty</div>
-              <div class="subtitle">Odbierz w wybranym miejscu</div>
-            </div>
-            <div class="delivery-card" id="cardInpost" onclick="selectDelivery('inpost')">
-              <div class="icon">📦</div>
-              <div class="title">Wysyłka InPost</div>
-              <div class="subtitle">+15 zł koszt wysyłki</div>
-            </div>
-          </div>
-
-          <div class="sub-options" id="subOsobisty">
-            <label>📍 Wybierz miejsce odbioru</label>
-            <label class="radio-label"><input type="radio" name="miejsce" value="Toruń - Planeta Zoo przy Żwirki i Wigury"> Toruń – Planeta Zoo przy Żwirki i Wigury</label>
-            <label class="radio-label"><input type="radio" name="miejsce" value="Toruń - Planeta Zoo przy Kaszowniku"> Toruń – Planeta Zoo przy Kaszowniku</label>
-            <label class="radio-label"><input type="radio" name="miejsce" value="Włocławek - odbiór w kociarni / u Dominiki Płuzy"> Włocławek – odbiór w kociarni / u Dominiki Płuzy</label>
-            <label class="radio-label">
-              <input type="radio" name="miejsce" value="inny" onchange="toggleOther(this)"> Inny umówiony sposób odbioru
-            </label>
-            <div class="other-input" id="otherInput">
-              <input type="text" id="otherText" placeholder="Opisz umówiony sposób odbioru...">
-            </div>
-          </div>
-
-          <div class="inpost-fields" id="subInpost">
-            <div class="inpost-note">📦 Koszt wysyłki InPost: <strong>15 zł</strong> – zostanie doliczona do kwoty fantów.</div>
-            <div class="field">
-              <label for="paczkomat">Numer paczkomatu</label>
-              <input type="text" id="paczkomat" placeholder="np. WAW123M">
-            </div>
-            <div class="field">
-              <label for="email">Adres e-mail</label>
-              <input type="email" id="email" placeholder="twoj@email.pl">
-            </div>
-            <div class="field">
-              <label for="telefon">Numer telefonu</label>
-              <input type="tel" id="telefon" placeholder="np. 600 123 456">
-            </div>
-          </div>
+          <label for="paczkomat" style="font-weight:600; color:#555; font-size:0.92rem; display:block; margin-bottom:7px;">Numer paczkomatu:</label>
+          <input type="text" id="paczkomat" class="inputs" maxlength="10" placeholder="np. WAW123M" autocomplete="off">
+        </div>
+        <div class="field">
+          <label for="email" style="font-weight:600; color:#555; font-size:0.92rem; display:block; margin-bottom:7px;">Adres e-mail:</label>
+          <input type="email" id="email" class="inputs" placeholder="twoj@email.pl" autocomplete="email">
+        </div>
+        <div class="field">
+          <label for="telefon" style="font-weight:600; color:#555; font-size:0.92rem; display:block; margin-bottom:7px;">Numer telefonu:</label>
+          <input type="tel" id="telefon" class="inputs" placeholder="np. 600 123 456" autocomplete="tel">
         </div>
       </div>
 
-              <!-- Klauzula RODO -->
-        <div class="rodo-box">
-          <h4>🔒 Informacja o przetwarzaniu danych osobowych (art. 13 RODO)</h4>
-          <p><strong>Administrator danych:</strong> Fundacja KOT, kontakt: <a href="mailto:fundacjakot@gmail.com">fundacjakot@gmail.com</a></p>
-          <p style="margin-top:6px"><strong>Cel i podstawa przetwarzania:</strong> Dane zbierane są wyłącznie w celu realizacji odbioru fantów z Bazarku Charytatywnego (art. 6 ust. 1 lit. b RODO – wykonanie umowy/realizacja zamówienia).</p>
-          <p style="margin-top:6px"><strong>Zakres danych:</strong> imię i nazwisko, sposób odbioru, dane kontaktowe (przy wysyłce InPost).</p>
-          <p style="margin-top:6px"><strong>Odbiorcy danych:</strong> dane przechowywane są w Google Sheets (Google LLC) wyłącznie na potrzeby organizacji odbioru fantów.</p>
-          <p style="margin-top:6px"><strong>Okres przechowywania:</strong> dane zostaną usunięte po zakończeniu realizacji odbioru wszystkich fantów, nie później niż 60 dni po bazarku.</p>
-          <p style="margin-top:6px"><strong>Twoje prawa:</strong> masz prawo dostępu do danych, ich sprostowania, usunięcia, ograniczenia przetwarzania oraz wniesienia skargi do <a href="https://uodo.gov.pl" target="_blank">Urzędu Ochrony Danych Osobowych (UODO)</a>.</p>
+      <hr class="section-divider">
 
-          <div class="rodo-consent">
-            <input type="checkbox" id="rodoCheckbox" onchange="onRodoChange()">
-            <label for="rodoCheckbox">
-              Zapoznałam/em się z informacją o przetwarzaniu danych osobowych i <strong>wyrażam zgodę</strong> na przetwarzanie moich danych osobowych przez Fundację KOT w celu realizacji odbioru fantów z Bazarku Charytatywnego.
-            </label>
-          </div>
-        </div>
-
-        <button class="submit-btn" id="submitBtn" onclick="submitForm()" disabled>
-        Wyślij ankietę 🐾
-      </button>
-      <div class="donation-box" id="donationBox" style="display:none">
-        <div class="donation-header">
-          <span class="donation-icon">🎉</span>
-          <h3>Dziękujemy za wypełnienie ankiety!</h3>
-          <p class="donation-sub">Twoje zgłoszenie zostało zapisane. Został jeszcze jeden krok!</p>
-        </div>
-        <div class="donation-divider"></div>
-        <p class="donation-text" id="donationText">
-          Prosimy o wpłacenie darowizny bezpośrednio na naszą zbiórkę.
-          Każda złotówka wspiera kastrację i leczenie naszych KOTów! 🐱
-        </p>
-        <a href="https://www.ratujemyzwierzaki.pl/zatrzymajmy-kolejny-miot" target="_blank" class="donate-btn">
-          Wpłać teraz 💚
-        </a>
-        <div class="confirmation-box">
-          <p class="sara-text">📩 Po dokonaniu wpłaty prosimy o przesłanie potwierdzenia przelewu do <strong>Sary</strong> – najlepiej przez Messenger. Dziękujemy! 💕</p>
-        </div>
+      <div class="rodo-box">
+        <p style="margin-bottom:8px;"><strong>Administrator danych:</strong> Fundacja KOT Koty Otoczone Troską, Koniuchy 7a/4, 87-100 Toruń, KRS 0000230788, e-mail: <a href="mailto:kontakt@fundacjakot.pl" style="color:#6a8a0d;">kontakt@fundacjakot.pl</a></p>
+        <p style="margin-bottom:8px;"><strong>Cel przetwarzania:</strong> realizacja odbioru fantów z bazarku charytatywnego (podstawa prawna: art. 6 ust. 1 lit. b RODO — wykonanie umowy).</p>
+        <p style="margin-bottom:8px;"><strong>Odbiorca danych:</strong> Google LLC (hosting arkuszy kalkulacyjnych).</p>
+        <p style="margin-bottom:8px;"><strong>Okres przechowywania:</strong> do zakończenia realizacji odbioru fantów, nie dłużej niż 90 dni od daty bazarku.</p>
+        <p style="margin-bottom:8px;"><strong>Transfer danych:</strong> dane mogą być przekazywane do USA (serwery Google LLC) na podstawie EU-US Data Privacy Framework.</p>
+        <p style="margin-bottom:8px;"><strong>Twoje prawa:</strong> dostęp do danych, sprostowanie, usunięcie, ograniczenie przetwarzania, przenoszenie danych oraz prawo do sprzeciwu. Przysługuje Ci również prawo wniesienia skargi do Prezesa Urzędu Ochrony Danych Osobowych (ul. Stawki 2, 00-193 Warszawa).</p>
+        <p><strong>Podanie danych</strong> jest dobrowolne, ale niezbędne do odbioru fantów.</p>
       </div>
+      <label class="rodo-checkbox" style="margin-bottom:22px;">
+        <input type="checkbox" id="rodoCheckbox">
+        <span style="font-size:0.88rem; color:#555; line-height:1.5;">Zapoznałem/am się z powyższą informacją dotyczącą przetwarzania moich danych osobowych.</span>
+      </label>
+
+      <button class="submit-btn" id="submitBtn" disabled onclick="submitForm()">Wyślij ankietę</button>
+    </div>
+
+    <!-- Screen 3: Already submitted (hidden) -->
+    <div id="alreadyScreen" class="hidden">
+      <div class="already-submitted">
+        <div style="font-size:2rem; margin-bottom:12px;">✅</div>
+        <h2>Ankieta już wypełniona</h2>
+        <p id="alreadyMsg">Ten kod PIN został już użyty do wysłania ankiety. Jeśli uważasz, że to błąd, skontaktuj się z organizatorem.</p>
+      </div>
+      <div id="alreadyDonationBox"></div>
+    </div>
+
+    <!-- Screen 4: Success (hidden, shown after submit) -->
+    <div id="successScreen" class="hidden">
+      <div class="success-screen">
+        <div style="font-size:2.5rem; margin-bottom:12px;">🎉</div>
+        <h2>Ankieta wysłana!</h2>
+        <p>Twoje zgłoszenie zostało zapisane. Dziękujemy!</p>
+      </div>
+      <div id="successDonationBox"></div>
     </div>
   </div>
 </div>
@@ -346,181 +358,336 @@
   // =====================================================
   // STAŁY ADRES SKRYPTU – nie wymaga konfiguracji
   // =====================================================
-  const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbye0mO-2CeHREwNzEwmIR9q8_k1e0kk8z80Nwy_fhx5Jz6XfYBmWtDf7BDksfV-ma8jiQ/exec";
-  // Fundacja Kot – https://fundacjakot.github.io/ankieta/
+  const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbyYqzclDylEDSPR1_cJOrs0coutaGZyHNb5yi0zn1Zo0Io6FD44mZ7FrkUsExG2wR5k/exec";
 
-  let wygraneRows = [];
-  let nameKey = '', fantKey = '', priceKey = '';
+  // =====================================================
+  // Stan aplikacji
+  // =====================================================
+  let currentPin = '';
+  let currentData = null;
   let currentDelivery = null;
-  let selectedName = '';
 
-  // Auto-connect on load
-  window.addEventListener('load', connectScript);
+  // =====================================================
+  // Helpers
+  // =====================================================
+  function showError(msg) {
+    const box = document.getElementById('errorBox');
+    box.textContent = msg;
+    box.classList.remove('hidden');
+  }
 
-  async function connectScript() {
+  function hideError() {
+    const box = document.getElementById('errorBox');
+    box.classList.add('hidden');
+    box.textContent = '';
+  }
+
+  function escapeHtml(text) {
+    const div = document.createElement('div');
+    div.textContent = text;
+    return div.innerHTML;
+  }
+
+  // =====================================================
+  // PIN input: Enter key + auto-uppercase
+  // =====================================================
+  document.getElementById('pinInput').addEventListener('keydown', function(e) {
+    if (e.key === 'Enter') verifyPin();
+  });
+
+  document.getElementById('pinInput').addEventListener('input', function(e) {
+    const pos = this.selectionStart;
+    this.value = this.value.toUpperCase();
+    this.setSelectionRange(pos, pos);
+  });
+
+  // =====================================================
+  // verifyPin() — sprawdza kod PIN przez GET do API
+  // =====================================================
+  async function verifyPin() {
+    const input = document.getElementById('pinInput');
+    const pin = input.value.trim().toUpperCase();
+
+    if (pin.length !== 4) {
+      showError('Kod PIN musi mieć dokładnie 4 znaki.');
+      input.focus();
+      return;
+    }
+
+    hideError();
+    currentPin = pin;
+
+    const btn = document.getElementById('pinBtn');
+    btn.disabled = true;
+    btn.textContent = '⏳ Sprawdzanie…';
+
     try {
-      const res = await fetch(SCRIPT_URL + '?action=getWygrane', { redirect: 'follow' });
+      const url = SCRIPT_URL + '?action=getAnkieta&pin=' + encodeURIComponent(pin);
+      const res = await fetch(url, { redirect: 'follow' });
       const json = await res.json();
-      if (json.error) throw new Error(json.error);
-      loadPersons(json.headers, json.rows);
-      document.getElementById('loading').style.display = 'none';
-      document.getElementById('formContent').style.display = 'block';
-    } catch(e) {
-      document.getElementById('loading').style.display = 'none';
-      const eb = document.getElementById('errorBox');
-      eb.style.display = 'block';
-      eb.textContent = '❌ Błąd wczytywania danych: ' + e.message + '. Odśwież stronę i spróbuj ponownie.';
+
+      if (json.error) {
+        showError('Błąd: ' + escapeHtml(json.error));
+        btn.disabled = false;
+        btn.textContent = 'Sprawdź kod';
+        return;
+      }
+
+      if (json.alreadySubmitted) {
+        showAlreadySubmitted(json.kwota || null);
+        return;
+      }
+
+      // Sukces – PIN poprawny, dane zwrócone
+      currentData = json;
+      showForm(json);
+
+    } catch (e) {
+      showError('Błąd połączenia: ' + escapeHtml(e.message) + '. Sprawdź połączenie i spróbuj ponownie.');
+      btn.disabled = false;
+      btn.textContent = 'Sprawdź kod';
     }
   }
 
-  function loadPersons(headers, rows) {
-    wygraneRows = rows;
-    nameKey  = headers.find(h => /imię|imie|nazwisko|name|osoba|uczestnik/i.test(h)) || headers[0];
-    fantKey  = headers.find(h => /fant|nagroda|przedmiot|item|towar/i.test(h))       || headers[1];
-    priceKey = headers.find(h => /kwota|cena|wartość|koszt|price|amount|suma/i.test(h)) || headers[2];
-    // Nie ładujemy listy nazwisk do DOM – użytkownik wpisuje swoje
+  // =====================================================
+  // showAlreadySubmitted(kwota) — ekran "już wysłano"
+  // =====================================================
+  function showAlreadySubmitted(kwota) {
+    document.getElementById('pinScreen').classList.add('hidden');
+    document.getElementById('alreadyScreen').classList.remove('hidden');
+    var container = document.getElementById('alreadyDonationBox');
+    container.innerHTML = '';
+    buildDonationContent(container, kwota);
   }
 
-  function onRodoChange() {
-    // Przycisk aktywny tylko gdy wybrano osobę I zaznaczono zgodę
-    const hasName = selectedName !== '';
-    const hasRodo = document.getElementById('rodoCheckbox').checked;
-    document.getElementById('submitBtn').disabled = !(hasName && hasRodo);
-  }
+  // =====================================================
+  // showForm(data) — przejście do ekranu formularza
+  // =====================================================
+  function showForm(data) {
+    document.getElementById('pinScreen').classList.add('hidden');
+    document.getElementById('formScreen').classList.remove('hidden');
 
-  function sanitize(str) {
-    const d = document.createElement('div');
-    d.textContent = str;
-    return d.innerHTML;
-  }
-    const query = document.getElementById('personSearch').value.trim();
-    document.getElementById('searchResult').innerHTML = '';
-    document.getElementById('prizesBox').style.display = 'none';
-    document.getElementById('deliverySection').style.display = 'none';
-    document.getElementById('submitBtn').disabled = true;
-    selectedName = '';
-    if (query.length < 2) return;
-    // Szukaj dopasowań (case-insensitive, bez ujawniania pełnej listy)
-    const matches = [...new Set(
-      wygraneRows
-        .map(r => String(r[nameKey]).trim())
-        .filter(n => n.toLowerCase().includes(query.toLowerCase()))
-    )];
-    const res = document.getElementById('searchResult');
-    if (matches.length === 0) {
-      res.innerHTML = '<div class="search-none">Nie znaleziono uczestnika. Sprawdź pisownię.</div>';
-    } else {
-      matches.slice(0, 5).forEach(n => {
-        const d = document.createElement('div');
-        d.className = 'search-item';
-        d.textContent = n;
-        d.onclick = () => selectPerson(n);
-        res.appendChild(d);
-      });
-    }
-  }
+    // Greeting — use textContent (no XSS)
+    var greetDiv = document.getElementById('greeting');
+    greetDiv.textContent = 'Cześć, ' + data.imie + '! 👋';
 
-  function selectPerson(name) {
-    selectedName = name;
-    document.getElementById('personSearch').value = name;
-    document.getElementById('searchResult').innerHTML = '';
-
-    const rows = wygraneRows.filter(r => String(r[nameKey]).trim() === name);
-    let html = '', total = 0;
-    rows.forEach(r => {
-      const fant  = sanitize(r[fantKey]  || '(brak nazwy)');
-      const price = parseFloat(String(r[priceKey]).replace(',','.')) || 0;
-      total += price;
-      html += `<div class="prize-row"><span>🎁 ${fant}</span><span class="prize-price">${price.toFixed(2)} zł</span></div>`;
+    // Prizes list — build DOM safely (no innerHTML with user data)
+    var prizesList = document.getElementById('prizesList');
+    prizesList.innerHTML = '';
+    data.fanty.forEach(function(f) {
+      var row = document.createElement('div');
+      row.className = 'prize-row';
+      var nameSpan = document.createElement('span');
+      nameSpan.textContent = '🎁 ' + f.nazwa;
+      var priceSpan = document.createElement('span');
+      priceSpan.className = 'prize-price';
+      priceSpan.textContent = f.kwota.toFixed(2) + ' zł';
+      row.appendChild(nameSpan);
+      row.appendChild(priceSpan);
+      prizesList.appendChild(row);
     });
-    document.getElementById('prizesList').innerHTML = html;
-    document.getElementById('prizeTotal').textContent = total.toFixed(2) + ' zł';
-    document.getElementById('prizesBox').style.display = 'block';
-    document.getElementById('deliverySection').style.display = 'block';
-    // Przycisk aktywny dopiero po zaznaczeniu zgody RODO
-    const hasRodo = document.getElementById('rodoCheckbox').checked;
-    document.getElementById('submitBtn').disabled = !hasRodo;
+
+    document.getElementById('prizeTotal').textContent = data.suma.toFixed(2) + ' zł';
   }
 
+  // =====================================================
+  // selectDelivery(type) — przełączanie opcji odbioru
+  // =====================================================
   function selectDelivery(type) {
     currentDelivery = type;
-    document.getElementById('cardOsob').classList.toggle('selected', type==='osobisty');
-    document.getElementById('cardInpost').classList.toggle('selected', type==='inpost');
-    document.getElementById('subOsobisty').classList.toggle('visible', type==='osobisty');
-    document.getElementById('subInpost').classList.toggle('visible', type==='inpost');
+    document.getElementById('cardOsob').classList.toggle('selected', type === 'osobisty');
+    document.getElementById('cardInpost').classList.toggle('selected', type === 'inpost');
+    document.getElementById('subOsobisty').classList.toggle('visible', type === 'osobisty');
+    document.getElementById('subInpost').classList.toggle('visible', type === 'inpost');
+    updateSubmitButton();
   }
 
+  // =====================================================
+  // toggleOther(radio) — pokazuje pole "inne miejsce"
+  // =====================================================
   function toggleOther(radio) {
     document.getElementById('otherInput').style.display = radio.checked ? 'block' : 'none';
   }
-  document.querySelectorAll('input[name=miejsce]').forEach(r => {
-    r.addEventListener('change', () => {
-      if (r.value !== 'inny') document.getElementById('otherInput').style.display = 'none';
-    });
+
+  // Reset pola "inne" gdy wybrano inną opcję
+  document.addEventListener('change', function(e) {
+    if (e.target.name === 'miejsce' && e.target.value !== 'inny') {
+      document.getElementById('otherInput').style.display = 'none';
+    }
   });
 
-  async function submitForm() {
-    const name = selectedName;
-    if (!name) { alert('Wybierz swoje imię i nazwisko z listy podpowiedzi.'); return; }
-    if (!document.getElementById('rodoCheckbox').checked) { alert('Zaznacz zgodę na przetwarzanie danych osobowych.'); return; }
-    if (!currentDelivery) { alert('Wybierz sposób odbioru.'); return; }
+  // =====================================================
+  // updateSubmitButton() — aktywacja przycisku wysyłki
+  // =====================================================
+  function updateSubmitButton() {
+    var rodoChecked = document.getElementById('rodoCheckbox').checked;
+    document.getElementById('submitBtn').disabled = !rodoChecked || !currentDelivery;
+  }
 
-    let deliveryDetail = '';
+  // =====================================================
+  // validateClientSide() — walidacja przed wysyłką
+  // =====================================================
+  function validateClientSide() {
+    if (!currentDelivery) return 'Wybierz sposób odbioru.';
     if (currentDelivery === 'osobisty') {
-      const m = document.querySelector('input[name=miejsce]:checked');
-      if (!m) { alert('Wybierz miejsce odbioru.'); return; }
+      var m = document.querySelector('input[name=miejsce]:checked');
+      if (!m) return 'Wybierz miejsce odbioru.';
       if (m.value === 'inny') {
-        const txt = document.getElementById('otherText').value.trim();
-        if (!txt) { alert('Opisz umówiony sposób odbioru.'); return; }
-        deliveryDetail = 'Inny: ' + txt;
-      } else { deliveryDetail = m.value; }
+        var txt = document.getElementById('otherText').value.trim();
+        if (!txt) return 'Opisz umówiony sposób odbioru.';
+        if (txt.length > 200) return 'Opis może mieć max 200 znaków.';
+      }
     } else {
-      const p = document.getElementById('paczkomat').value.trim();
-      const e = document.getElementById('email').value.trim();
-      const t = document.getElementById('telefon').value.trim();
-      if (!p || !e || !t) { alert('Uzupełnij wszystkie dane InPost.'); return; }
-      deliveryDetail = `Paczkomat: ${p} | Email: ${e} | Tel: ${t}`;
+      var p = document.getElementById('paczkomat').value.trim();
+      var e = document.getElementById('email').value.trim();
+      var t = document.getElementById('telefon').value.trim();
+      if (!p) return 'Wpisz numer paczkomatu.';
+      if (!/^[A-Z]{3}\d{2,3}[A-Z]$/i.test(p)) return 'Nieprawidłowy format paczkomatu (np. WAW123M).';
+      if (!e) return 'Wpisz adres email.';
+      if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(e)) return 'Nieprawidłowy adres email.';
+      if (!t) return 'Wpisz numer telefonu.';
+      var cleanT = t.replace(/[\s\-]/g, '');
+      if (!/^(\+48)?\d{9}$/.test(cleanT)) return 'Nieprawidłowy numer telefonu (9 cyfr).';
+    }
+    if (!document.getElementById('rodoCheckbox').checked) return 'Zaznacz potwierdzenie zapoznania się z informacją o przetwarzaniu danych.';
+    return null;
+  }
+
+  // RODO checkbox — listener dodany po załadowaniu DOM
+  document.addEventListener('DOMContentLoaded', function() {
+    document.getElementById('rodoCheckbox').addEventListener('change', updateSubmitButton);
+  });
+
+  // =====================================================
+  // submitForm() — wysyłka formularza do API
+  // =====================================================
+  async function submitForm() {
+    hideError();
+    var validationError = validateClientSide();
+    if (validationError) { showError(validationError); return; }
+
+    var szczegoly = '';
+    var tel = '';
+    var email = '';
+    var paczkomat = '';
+
+    if (currentDelivery === 'osobisty') {
+      var m = document.querySelector('input[name=miejsce]:checked');
+      if (m.value === 'inny') {
+        szczegoly = 'Inny: ' + document.getElementById('otherText').value.trim();
+      } else {
+        szczegoly = m.value;
+      }
+    } else {
+      paczkomat = document.getElementById('paczkomat').value.trim();
+      email = document.getElementById('email').value.trim();
+      tel = document.getElementById('telefon').value.trim();
     }
 
-    const rows = wygraneRows.filter(r => String(r[nameKey]).trim() === name);
-    const fanty = rows.map(r => r[fantKey]).join('; ');
-    const total = rows.reduce((s,r) => s + (parseFloat(String(r[priceKey]).replace(',','.')) || 0), 0);
-          const totalWithShipping = currentDelivery === 'inpost' ? total + 15 : total;
-
-      // Ustaw kwotę w komunikacie donacji
-      document.getElementById('donationText').innerHTML =
-        `Prosimy o wpłacenie darowizny <strong>${totalWithShipping.toFixed(2)} zł</strong> za fanty bezpośrednio na naszą zbiórkę charytatywną. Każda złotówka wspiera kastrację i leczenie naszych KOTów! 🐱`;
-
-    const btn = document.getElementById('submitBtn');
+    var btn = document.getElementById('submitBtn');
     btn.disabled = true;
     btn.textContent = '⏳ Zapisywanie…';
 
     try {
-      const res = await fetch(SCRIPT_URL, {
+      var res = await fetch(SCRIPT_URL, {
         method: 'POST',
         body: JSON.stringify({
           action: 'saveOdpowiedz',
           data: {
-            timestamp:        new Date().toLocaleString('pl-PL'),
-            imie:             name,
-            sposobOdbioru:    currentDelivery === 'osobisty' ? 'Odbiór osobisty' : 'InPost (+15 zł)',
-            szczegolyOdbioru: deliveryDetail,
-            tel:              currentDelivery === 'inpost' ? document.getElementById('telefon').value.trim() : '',
-            mail:             currentDelivery === 'inpost' ? document.getElementById('email').value.trim() : '',
-            paczkomat:        currentDelivery === 'inpost' ? document.getElementById('paczkomat').value.trim() : ''
+            pin: currentPin,
+            sposobOdbioru: currentDelivery,
+            szczegoly: szczegoly,
+            tel: tel,
+            email: email,
+            paczkomat: paczkomat
           }
         })
       });
-      const json = await res.json();
-      if (json.error) throw new Error(json.error);
-      btn.style.display = 'none';
-      document.getElementById('donationBox').style.display = 'block';
-      document.getElementById('donationBox').scrollIntoView({behavior:'smooth', block:'start'});
-    } catch(e) {
-      alert('Błąd zapisu: ' + e.message);
+      var json = await res.json();
+
+      if (json.error) {
+        if (json.alreadySubmitted) { showAlreadySubmitted(json.kwota); return; }
+        showError(json.error);
+        btn.disabled = false;
+        btn.textContent = 'Wyślij ankietę 🐾';
+        return;
+      }
+
+      showSuccess(json.kwota);
+    } catch (e) {
+      showError('Błąd zapisu. Odśwież stronę i spróbuj ponownie.');
       btn.disabled = false;
       btn.textContent = 'Wyślij ankietę 🐾';
     }
+  }
+
+  // =====================================================
+  // showSuccess(kwota) — ekran podziękowania
+  // =====================================================
+  function showSuccess(kwota) {
+    document.getElementById('formScreen').classList.add('hidden');
+    var screen = document.getElementById('successScreen');
+    screen.classList.remove('hidden');
+    var container = document.getElementById('successDonationBox');
+    container.innerHTML = '';
+    buildDonationContent(container, kwota);
+    screen.scrollIntoView({ behavior: 'smooth', block: 'start' });
+  }
+
+  /**
+   * Builds donation content using safe DOM creation (no innerHTML with user data).
+   * @param {HTMLElement} container - parent element to append to
+   * @param {number|null} kwota - amount to display
+   */
+  function buildDonationContent(container, kwota) {
+    var box = document.createElement('div');
+    box.className = 'donation-box';
+
+    var icon = document.createElement('span');
+    icon.className = 'donation-icon';
+    icon.textContent = '🎉';
+    box.appendChild(icon);
+
+    var h3 = document.createElement('h3');
+    h3.textContent = 'Dziękujemy za wypełnienie ankiety!';
+    box.appendChild(h3);
+
+    var sub = document.createElement('p');
+    sub.style.cssText = 'color:#888; font-size:0.85rem;';
+    sub.textContent = 'Twoje zgłoszenie zostało zapisane. Został jeszcze jeden krok!';
+    box.appendChild(sub);
+
+    var divider = document.createElement('hr');
+    divider.className = 'donation-divider';
+    box.appendChild(divider);
+
+    var text = document.createElement('p');
+    text.className = 'donation-text';
+    if (kwota) {
+      text.textContent = 'Prosimy o wpłacenie darowizny ' + kwota.toFixed(2) +
+        ' zł za fanty bezpośrednio na naszą zbiórkę charytatywną. Każda złotówka wspiera kastrację i leczenie naszych KOTów! 🐱';
+    } else {
+      text.textContent = 'Prosimy o wpłacenie darowizny za fanty bezpośrednio na naszą zbiórkę charytatywną. Każda złotówka wspiera kastrację i leczenie naszych KOTów! 🐱';
+    }
+    box.appendChild(text);
+
+    var btn = document.createElement('a');
+    btn.href = 'https://www.ratujemyzwierzaki.pl/zatrzymajmy-kolejny-miot';
+    btn.target = '_blank';
+    btn.rel = 'noopener noreferrer';
+    btn.className = 'donate-btn';
+    btn.textContent = 'Wpłać teraz 💚';
+    box.appendChild(btn);
+
+    var confBox = document.createElement('div');
+    confBox.className = 'confirmation-box';
+    var saraText = document.createElement('p');
+    saraText.className = 'sara-text';
+    saraText.textContent = '📩 Po dokonaniu wpłaty prosimy o przesłanie potwierdzenia przelewu do Sary — najlepiej przez Messenger. Dziękujemy! 💕';
+    confBox.appendChild(saraText);
+    box.appendChild(confBox);
+
+    container.appendChild(box);
   }
 </script>
 </body>
